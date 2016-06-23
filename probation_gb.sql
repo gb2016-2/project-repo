@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `pages` (
   `id` int(11) NOT NULL,
   `url` varchar(2048) CHARACTER SET utf32 NOT NULL,
   `site_id` int(11) NOT NULL,
-  `faund_date_time` datetime NOT NULL,
+  `found_date_time` datetime NOT NULL,
   `last_scan_date` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
