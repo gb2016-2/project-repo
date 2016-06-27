@@ -1,7 +1,7 @@
 <?php
 define('CROWLER-API', true);
 
-return $config = [
+$config = [
 	'db' => [
 		'dsn' => 'mysql:host=2ac3d.spectrum.myjino.ru;dbname=437745_jm2',
 		'username' => '437745_jm2',

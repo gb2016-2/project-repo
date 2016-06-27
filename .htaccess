@@ -11,6 +11,12 @@ Options -Indexes
 RewriteEngine On
 RewriteBase /
 
+RewriteCond %{REQUEST_URI} ^/api
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^api/(.*)$ /api/index.php?method=$1 [L,QSA]
+
+RewriteCond %{REQUEST_URI} !^/api/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [L,QSA]
