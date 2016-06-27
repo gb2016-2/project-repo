@@ -24,7 +24,8 @@ class Router
 	{
 		$action = $this->getAction();
 		$controller = $this->getController($action);
-		$this->controller = new $controller;
+		
+		$this->controller = ($controller) ? new $controller : header('HTTP/1.1 404 Not found!');
 		$this->action = $action;
 	}
 	

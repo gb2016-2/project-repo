@@ -1,5 +1,5 @@
 <?php
-require_once(__DIR__ . "/../config.php");
+require_once(__DIR__ . "/config.php");
 if(!defined('CROWLER-API')) die ("Hacking attempt!");
 
 require_once(__DIR__ . "/functions/autoload.php");
