@@ -1,9 +1,10 @@
 <?php
 namespace app\controllers;
 
+use app\Controller;
 use app\models\Person;
 
-class PersonController
+class PersonController extends Controller
 {
 	public function PersonStatsAll()
 	{

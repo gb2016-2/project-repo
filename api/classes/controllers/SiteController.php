@@ -1,9 +1,10 @@
 <?php
 namespace app\controllers;
 
+use app\Controller;
 use app\models\Site;
 
-class SiteController
+class SiteController extends Controller
 {
 	public function AdminSitesAll()
 	{
