@@ -1,2 +1,3 @@
 crawler/python
-!crawler/python/name-crawler.py
+!crawler/python/name_crawler.py
+!crawler/python/site_crawler.py
