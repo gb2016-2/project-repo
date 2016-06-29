@@ -1,0 +1,65 @@
+.container {
+  width: 940px;
+  margin: 0 auto;
+  padding-top: 40px;
+}
+nav {
+  float: left;
+  width: 30%;
+  height: 200px;
+  padding: 60px 10px;
+  background: #D2D7D3;
+  font-family: Arial, sans-serif;
+  font-size: 1em;
+  text-decoration: underline;
+  text-transform: uppercase;
+}
+.commonstat,
+.dailystat {
+  margin-bottom: 15px;
+  cursor: pointer;
+}
+.content {
+  float: right;
+  width: 60%;
+  text-align: left;
+}
+.active {
+  font-size: 1.1em;
+  font-weight: 700;
+}
+.config-commonview {
+  width: 250px;
+}
+.config-view button {
+  margin-left: 20px;
+}
+table,th,td {
+  text-align: center;
+  border: 1px solid black;
+}
+table {
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+th {
+  background:  #D2D7D3;
+}
+th,td {
+  padding: 10px;
+}
+.daily-stats {
+  display: none;
+}
+.daily-stats input[type="date"] {
+  margin-left: 10px;
+  margin-bottom: 10px;
+}
+.daily-stats .site-list {
+  margin-left: 38px;
+  margin-bottom: 10px;
+}
+.daily-stats .person-list {
+  margin-left: 6px;
+  margin-bottom: 10px;
+}

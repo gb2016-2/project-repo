@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <title>Private room</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/core.css">
+  </head>
+  <body>
+
+    <div class="container">
+      <nav>
+        <div class="commonstat active">Общая статистика</div>
+        <div class="dailystat menu-item">Ежедневная статистика</div>
+      </nav>
+      <section class="content">
+        <div class="common-stats"
+          <form class="config-commonview">
+            <span>Сайт: </span>
+            <select>
+              <option>Lenta.ru</option>
+              <option>Ria.ru</option>
+            </select>
+            <button type="sumbit">Применить</button>
+          </form>
+          <table>
+            <tr>
+              <th>Имя</th>
+              <th>Количество упоминаний</th>
+            </tr>
+            <tr>
+              <td>Путин</td>
+              <td>100500</td>
+            </tr>
+                  <tr>
+              <td>Медведев</td>
+              <td>100</td>
+            </tr>
+                  <tr>
+              <td>Навальный</td>
+              <td>11</td>
+            </tr>
+          </table>
+        </div>
+        <div class="daily-stats">
+          <form class="config-dailyview">
+            <label>Сайт: 
+              <select class="site-list">
+                <option>Lenta.ru</option>
+                <option>Ria.ru</option>
+              </select>
+            </label><br>
+            <label>Личность: 
+              <select class="person-list">
+                <option>Путин</option>
+                <option>Медведев</option>
+                <option>Навальный</option>
+              </select>
+            </label><br>
+            <label>Период с: 
+              <input type="date">
+            </label>
+            <label>по: 
+              <input type="date">
+            </label>
+            <button type="submit">Применить</button>
+          </form>
+           <table>
+            <tr>
+              <th>Дата</th>
+              <th>Количество новых страниц</th>
+            </tr>
+            <tr>
+              <td>12.06.2016</td>
+              <td>34</td>
+            </tr>
+                  <tr>
+              <td>13.06.2016</td>
+              <td>15</td>
+            </tr>
+                  <tr>
+              <td>14.06.2016</td>
+              <td>2</td>
+            </tr>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <script src="js/jquery.min.js"></script>
+     <script src="js/core.js"></script> 
+  </body>
+</html>
