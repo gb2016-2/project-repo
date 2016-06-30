@@ -80,6 +80,8 @@ class NameCrawler(object):
         for page in self._pages:
             resp = requests.get(page.url)
             soup = BeautifulSoup(resp.content, 'lxml')
+
+            # ----------- plagiat ------------ #
             texts = soup.findAll(text=True)
 
             def visible(element):
@@ -92,6 +94,7 @@ class NameCrawler(object):
 
             visible_texts = filter(visible, texts)
             texts_by_page[page.url] = visible_texts
+            # ------- end of plagiat --------- #
 
         self._count = {}
         for pers in self._persons.keys():
@@ -145,18 +148,4 @@ class NameCrawler(object):
         cnx.close()
 
 if __name__ == '__main__':
-    crawler = NameCrawler('bla-user', 'tmp')
-    crawler.add_site('lenta.ru')
-    crawler.get_pages()
-    print(crawler._sites)
-    print(crawler._pages)
-
-    crawler.add_person('Путин')
-    crawler.add_person('Жириновский')
-    crawler.get_names()
-    print(crawler._persons)
-    print(crawler._names)
-
-    crawler.count_persons()
-    crawler.print_results()
-    crawler.write_to_bd()
+    pass
