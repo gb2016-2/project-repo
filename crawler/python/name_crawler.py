@@ -6,68 +6,49 @@ from collections import namedtuple
 
 
 class NameCrawler(object):
-    def __init__(self, user, db):
+    def __init__(self, user, password, db):
         self._sites = {}
         self._persons = {}
         self._pages = []
         self._names = {}
         self._config = {'user': user,
+                        'password': password,
                         'database': db,
                         'charset': 'utf8'}
 
-    def add_site(self, site):
-        if site not in self._sites:
-            cnx = pymysql.connect(**self._config)
-            cur = cnx.cursor()
-
-            cur.execute("SELECT id FROM sites WHERE name='" + site + "';")
-            for row in cur:
-                site_id = row[0]
-                if site_id:
-                    self._sites[site] = site_id
-
-            cur.close()
-            cnx.close()
-
-    def add_person(self, person):
-        if person not in self._persons:
-            cnx = pymysql.connect(**self._config)
-            cur = cnx.cursor()
-
-            cur.execute("SELECT id FROM persons WHERE name='" + person + "';")
-            for row in cur:
-                person_id = row[0]
-                if person_id:
-                    self._persons[person] = person_id
-
-            cur.close()
-            cnx.close()
-
-    def get_pages(self):
-        Page = namedtuple('Page', ['page_id', 'url', 'site_id'])
-
+    def _get_sites(self):
         cnx = pymysql.connect(**self._config)
         cur = cnx.cursor()
 
+        cur.execute("SELECT * FROM coriander_sites;")
+        for row in cur:
+            self._sites[row[1]] = row[0]
+
+        Page = namedtuple('Page', ['page_id', 'url', 'site_id'])
+
         for site_id in self._sites.values():
-            cur.execute("SELECT * \
-                         FROM pages \
+            cur.execute("SELECT id, url, site_id \
+                         FROM coriander_pages \
                          WHERE site_id='" + str(site_id) + "';")
             for row in cur:
-                page = Page(*row[:3])
+                page = Page(*row)
                 self._pages.append(page)
 
         cur.close()
         cnx.close()
 
-    def get_names(self):
+    def _get_persons(self):
         cnx = pymysql.connect(**self._config)
         cur = cnx.cursor()
+
+        cur.execute("SELECT * FROM coriander_persons;")
+        for row in cur:
+            self._persons[row[1]] = row[0]
 
         for person, person_id in self._persons.items():
             self._names[person] = []
             cur.execute("SELECT name \
-                         FROM keywords \
+                         FROM coriander_keywords \
                          WHERE person_id='" + str(person_id) + "';")
             for row in cur:
                 self._names[person].append(row[0])
@@ -75,11 +56,12 @@ class NameCrawler(object):
         cur.close()
         cnx.close()
 
-    def count_persons(self):
-        texts_by_page = {}
-        for page in self._pages:
+    def _get_visibles_from_page(self, page):
+        try:
             resp = requests.get(page.url)
             soup = BeautifulSoup(resp.content, 'lxml')
+
+            # --------- plagiat --------- #
             texts = soup.findAll(text=True)
 
             def visible(element):
@@ -91,12 +73,27 @@ class NameCrawler(object):
                 return True
 
             visible_texts = filter(visible, texts)
-            texts_by_page[page.url] = visible_texts
+            self._texts_by_page[page.url] = visible_texts
+            # ----- end of plagiat ------ #
+        except Exception:
+            return 0
+
+    def count_persons(self):
+        self._get_sites()
+        self._get_persons()
+
+        self._texts_by_page = {}
+        page_num = 0
+        for page in self._pages:
+            self._get_visibles_from_page(page)
+            page_num += 1
+            if page_num % 100 == 0:
+                print(page_num, end=' ')
 
         self._count = {}
         for pers in self._persons.keys():
             self._count[pers] = {}
-        for page, texts in texts_by_page.items():
+        for page, texts in self._texts_by_page.items():
             for pers in self._count.keys():
                 self._count[pers][page] = 0
             for text in texts:
@@ -105,30 +102,25 @@ class NameCrawler(object):
                         match = re.findall(word, text, flags=re.IGNORECASE)
                         self._count[person][page] += len(match)
 
-    def print_results(self):
-        for pers, pages in self._count.items():
-            print(pers)
-            res = 0
-            for page, num in pages.items():
-                print('\t', page, num)
-                res += num
-            print('Total: {}\n'.format(res))
-
-    def write_to_bd(self):
+    def write_to_db(self):
         cnx = pymysql.connect(**self._config, autocommit=True)
         cur = cnx.cursor()
+        page_num = 0
         for page in self._pages:
+            page_num += 1
+            if page_num % 100 == 0:
+                print(page_num, end=' ')
             for pers, id in self._persons.items():
                 select_test = False
                 sql_test = "SELECT * \
-                            FROM person_page_rank \
+                            FROM coriander_personpagerank \
                             WHERE (person_id='" + str(id) + "') \
                             AND (page_id='" + str(page.page_id) + "');"
                 cur.execute(sql_test)
                 for row in cur:
                     select_test = True
                 if select_test:
-                    sql_update = "UPDATE person_page_rank \
+                    sql_update = "UPDATE coriander_personpagerank \
                                   SET \
                                   rank='" + str(self._count[pers][page.url]) + "' \
                                   WHERE (person_id='" + str(id) + "') \
@@ -136,27 +128,17 @@ class NameCrawler(object):
                     cur.execute(sql_update)
                 else:
                     sql = "INSERT \
-                           INTO person_page_rank(person_id, page_id, rank) \
+                           INTO coriander_personpagerank(rank, page_id, \
+                                                         person_id, site_id) \
                            VALUES \
-                           (" + str(id) + ", " + str(page.page_id) + ", " \
-                              + str(self._count[pers][page.url]) + ");"
+                           (" + str(self._count[pers][page.url]) + ", " \
+                              + str(page.page_id) + ", " + str(id) + ", " \
+                              + str(page.site_id) + ");"
                     cur.execute(sql)
         cur.close()
         cnx.close()
 
 if __name__ == '__main__':
-    crawler = NameCrawler('bla-user', 'tmp')
-    crawler.add_site('lenta.ru')
-    crawler.get_pages()
-    print(crawler._sites)
-    print(crawler._pages)
-
-    crawler.add_person('Путин')
-    crawler.add_person('Жириновский')
-    crawler.get_names()
-    print(crawler._persons)
-    print(crawler._names)
-
+    crawler = NameCrawler('root', 'r00tpa551', 'ark')
     crawler.count_persons()
-    crawler.print_results()
     crawler.write_to_bd()
