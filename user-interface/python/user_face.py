@@ -91,7 +91,22 @@ class UserInterface(object):
             print(site, 'is already here')
 
     def print_results(self):
-        pass
+        cnx = pymysql.connect(**self._config)
+        cur = cnx.cursor()
+
+        for person in self.persons:
+            print(person)
+            for site, site_id in self.sites.items():
+                sql_select = "SELECT sum(rank) FROM person_page_rank \
+                              WHERE person_id='" + str(person.person_id) + \
+                              "AND site_id='" + str(site_id) + \
+                              "GROUP BY site_id;"
+                cur.execute(sql_select)
+                for row in cur:
+                    print('\t', site, '-->', row[0])
+
+        cur.close()
+        cnx.close()
 
 
 if __name__ == "__main__":
