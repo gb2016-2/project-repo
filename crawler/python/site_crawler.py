@@ -5,11 +5,12 @@ import re
 
 
 class SiteCrawler(object):
-    def __init__(self, user, db, site):
+    def __init__(self, user, password, db, site):
         self.topics = {}
         self.all_urls = set()
         self.site = site
         self._config = {'user': user,
+			'password': password,
                         'database': db,
                         'charset': 'utf8'}
 
@@ -19,7 +20,7 @@ class SiteCrawler(object):
         except Exception:
             return set()
 
-        soup = BeautifulSoup(resp.content, 'lxml')
+        soup = BeautifulSoup(resp.content, 'html.parser')
         urls = soup.findAll('a')
 
         pat = '//\S*?\.((ru)|(com)).*'
@@ -78,14 +79,14 @@ class SiteCrawler(object):
         cnx = pymysql.connect(**self._config, autocommit=True)
         cur = cnx.cursor()
 
-        cur.execute("SELECT id FROM sites WHERE name='" + self.site + "';")
+        cur.execute("SELECT id FROM coriander_sites WHERE name='" + self.site + "';")
         site_id = False
         for row in cur:
             site_id = row[0]
         if site_id is False:
-            cur.execute("INSERT INTO sites(name) \
+            cur.execute("INSERT INTO coriander_sites(name) \
                          VALUES('" + str(self.site) + "');")
-            cur.execute("SELECT id FROM sites WHERE name='" + self.site + "';")
+            cur.execute("SELECT id FROM coriander_sites WHERE name='" + self.site + "';")
             for row in cur:
                 site_id = row[0]
 
@@ -93,15 +94,15 @@ class SiteCrawler(object):
             for url in self.topics[key]:
                 select_test = False
                 sql_test = "SELECT * \
-                            FROM pages \
+                            FROM coriander_pages \
                             WHERE (url='" + url + "');"
                 cur.execute(sql_test)
                 for row in cur:
                     select_test = True
                 if select_test is False:
                     sql = "INSERT \
-                           INTO pages(url, site_id, \
-                                      faund_date_time, last_scan_date) \
+                           INTO coriander_pages(url, site_id, \
+                                      found_date_time, last_scan_date) \
                            VALUES \
                            ('" + str(url) + "', '" + str(site_id) + "', " \
                               + "'20160628', '20160628');"
@@ -111,4 +112,6 @@ class SiteCrawler(object):
 
 
 if __name__ == '__main__':
-    pass
+    sc = SiteCrawler('root', 'r00tpa551', 'ark', 'http://lenta.ru')
+    sc.get_sitemap(5)
+    sc.write_to_db()
