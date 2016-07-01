@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Справочники</title>
+	<link rel="stylesheet" type="text/css" href="stylesheets/style.css">
+</head>
+<body>
+	<div class="container">
+		<div class="aside">
+			<aside class="aside-b">
+				<h2 class="h2-item"> <a href="#"> Общая статистика</a> </h2>
+				 <h2 class="h2-item"> <a href="#"> Ежедневная статистика</a> </h2>
+				 <h2 class="h2-item"> <a href="#"> Справочники</a> </h2>
+					<ul class="ul-item">
+						<li class="l-item persons"> <a href="#persons">Личности</a> </li>
+						<li class="l-item key-words"> <a href="#key-words">Ключевые слова</a> </li>
+						<li class="l-item sites"> <a href="#sites">Сайты</a> </li>
+					</ul>
+			</aside>
+		</div>
+
+		<div id="persons" class="test catalog-persons">
+			<div class="catalog-persons-b">
+					<p class="table-name">Справочник "Личности"</p>
+
+		
+					<table id="persons-table" class="table-b">
+					    <tr class="table-r">
+					        <th colspan="2" class="table-h">Наименование</th>
+					        <tr>
+					            <td class="table-row">Медведев</td>
+					            <td><button class="delete-row">Delete</button></td>
+					        </tr>
+					    </tr>
+					    <tr>
+					        <td class="table-row">Навальный</td>
+					        <td><button class="delete-row">Delete</button></td>
+					    </tr>
+					    <tr>
+					        <td class="table-row">Путин</td>
+					        <td><button class="delete-row">Delete</button></td>
+					    </tr>
+					                                
+					</table>
+
+			<div class="button-b">
+				<button onclick="addNewPerson()" class="catalog-persons__button-add">Добавить</button>
+			</div>
+
+			</div>
+		</div>
+
+		<div id="sites" class="catalog-sites">
+			<div class="catalog-sites-b">
+					<p class="table-name">Справочник "Сайты"</p>
+
+					<table id="sites-table" class="table-b">
+						<tr class="table-r">
+							<th colspan="2" class="table-h">Наименование</th>
+							<tr>
+								<td class="table-row">lenta.ru</td>
+								<td><button class="delete-row">Delete</button></td>
+							</tr>
+						</tr>
+						<tr>
+							<td class="table-row">politica.ru</td>
+							<td><button class="delete-row">Delete</button></td>
+						</tr>
+					</table>
+
+			<div class="button-b">
+				<button onclick="addNewSite()">Добавить</button>
+
+			</div>
+			</div>
+		</div>
+
+		<div id="key-words" class="catalog-key-words">
+			<div class="catalog-key-words-b">
+				<p class="table-name">Справочник "Ключевые слова"</p>
+				<div class="select-person-b">
+				<p class="select-person-b__name">Персона:</p>
+				<select class="select-person-b__option">
+					<option class"select-person__option" value="Медведев">Медведев</option>
+					<option class"select-person__option" value="Навальный">Навальный</option>
+					<option class"select-person__option" value="Путин">Путин</option>
+				</select>
+				</div>
+
+				<table id="key-words-table" class="table-b">
+					<tr class="table-r">
+						<th colspan="2" class="table-h">Наименование</th>
+						<tr>
+							<td class="table-row">Медведев</td>
+							<td><button class="delete-row">Delete</button></td>
+						</tr>
+					</tr> 
+					<tr>
+						<td class="table-row">Медведева</td>
+						<td><button class="delete-row">Delete</button></td>
+					</tr>
+					<tr>
+						<td class="table-row">Медведеву</td>
+						<td><button class="delete-row">Delete</button></td>
+					</tr>
+				</table>
+			<div class="button-b">
+				<button onclick="addNewKey()">Добавить</button>
+
+			</div>
+			</div>
+		</div>
+<!-- <script src="js/client.js"></script> -->
+<!-- <script>
+	
+// 	document.getElementsByClassName('catalog-persons__button-add').onclick = function () {
+// 	alert('Hello!');
+// }
+</script> -->
+
+<script src="js/client.js"> </script>
+
+</body>
+</html>
