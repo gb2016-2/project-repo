@@ -12,6 +12,7 @@ class NameCrawler(object):
         self._persons = {}
         self._pages = []
         self._names = {}
+        self._count = {}
         self._config = {'user': user,
                         'password': password,
                         'database': db,
@@ -56,10 +57,12 @@ class NameCrawler(object):
 
         cur.close()
         cnx.close()
+        for pers in self._persons.keys():
+            self._count[pers] = {}
 
-    def _get_visibles_from_page(self, page):
+    def _get_visibles_from_page(self, page_url, page_date):
         try:
-            resp = requests.get(page.url)
+            resp = requests.get(page_url)
             soup = BeautifulSoup(resp.content, 'lxml')
 
             def get_date(str_date):
@@ -71,8 +74,8 @@ class NameCrawler(object):
             try:
                 new_date = get_date(resp.headers['Last-Modified'])
             except Exception:
-                new_date = page.page_date
-            self._page_dates[page.url] = new_date
+                new_date = page_date
+            self._page_dates[page_url] = new_date
 
             # --------- plagiat --------- #
             texts = soup.findAll(text=True)
@@ -86,8 +89,9 @@ class NameCrawler(object):
                 return True
 
             visible_texts = filter(visible, texts)
-            self._texts_by_page[page.url] = visible_texts
             # ----- end of plagiat ------ #
+            return visible_texts
+
         except Exception:
             return 0
 
@@ -95,25 +99,21 @@ class NameCrawler(object):
         self._get_sites()
         self._get_persons()
 
-        self._texts_by_page = {}
         self._page_dates = {}
         page_num = len(self._pages)
         for page in self._pages:
-            self._get_visibles_from_page(page)
-            page_num -= 1
-            print('               \r', page_num, end='')
-
-        self._count = {}
-        for pers in self._persons.keys():
-            self._count[pers] = {}
-        for page, texts in self._texts_by_page.items():
-            for pers in self._count.keys():
-                self._count[pers][page] = 0
-            for text in texts:
+            print('\r\tPages left:', page_num, end='          ')
+            visible_texts = self._get_visibles_from_page(page.url,
+                                                         page.page_date)
+            # for page, texts in self._texts_by_page.items():
+            for person in self._count.keys():
+                self._count[person][page.url] = 0
+            for text in visible_texts:
                 for person in self._persons.keys():
                     for word in self._names[person]:
                         match = re.findall(word, text, flags=re.IGNORECASE)
-                        self._count[person][page] += len(match)
+                        self._count[person][page.url] += len(match)
+            page_num -= 1
 
     def write_to_db(self):
         cnx = pymysql.connect(**self._config, autocommit=True)
@@ -122,11 +122,11 @@ class NameCrawler(object):
         page_num = len(self._pages)
         for page in self._pages:
             page_num -= 1
-            print('               \r', page_num, end='')
+            print('\rPages left:', page_num, end='          ')
 
             sql_upd_page = "UPDATE coriander_pages \
-                            SET found_date_time='" + \
-                                          str(self._page_dates[page.url]) + "' \
+                            SET found_date_time='" \
+                                        + str(self._page_dates[page.url]) + "' \
                             WHERE id='" + str(page.page_id) + "';"
             cur.execute(sql_upd_page)
 
