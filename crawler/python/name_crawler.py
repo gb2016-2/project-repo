@@ -1,10 +1,9 @@
-# crawler by names on page
-
 import requests
 import re
 import pymysql
 from bs4 import BeautifulSoup
 from collections import namedtuple
+import dateutil
 
 
 class NameCrawler(object):
@@ -26,10 +25,10 @@ class NameCrawler(object):
         for row in cur:
             self._sites[row[1]] = row[0]
 
-        Page = namedtuple('Page', ['page_id', 'url', 'site_id'])
+        Page = namedtuple('Page', ['page_id', 'url', 'site_id', 'page_date'])
 
         for site_id in self._sites.values():
-            cur.execute("SELECT id, url, site_id \
+            cur.execute("SELECT id, url, site_id, found_date_time \
                          FROM coriander_pages \
                          WHERE site_id='" + str(site_id) + "';")
             for row in cur:
@@ -63,6 +62,16 @@ class NameCrawler(object):
             resp = requests.get(page.url)
             soup = BeautifulSoup(resp.content, 'lxml')
 
+            def get_date(str_date):
+                dt = dateutil(str_date)
+                return str(dt.year) + str("{:02}".format(dt.month)) \
+                                    + str("{:02}".format(dt.day))
+
+            try:
+                page.page_date = get_date(resp.headers['Last-Modified'])
+            except Exception:
+                pass
+
             # --------- plagiat --------- #
             texts = soup.findAll(text=True)
 
@@ -85,12 +94,11 @@ class NameCrawler(object):
         self._get_persons()
 
         self._texts_by_page = {}
-        page_num = 0
+        page_num = len(self._pages)
         for page in self._pages:
             self._get_visibles_from_page(page)
-            page_num += 1
-            if page_num % 100 == 0:
-                print(page_num, end=' ')
+            page_num -= 1
+            print('               \r', page_num)
 
         self._count = {}
         for pers in self._persons.keys():
@@ -107,11 +115,17 @@ class NameCrawler(object):
     def write_to_db(self):
         cnx = pymysql.connect(**self._config, autocommit=True)
         cur = cnx.cursor()
-        page_num = 0
+
+        page_num = len(self._pages)
         for page in self._pages:
-            page_num += 1
-            if page_num % 100 == 0:
-                print(page_num, end=' ')
+            page_num -= 1
+            print('               \r', page_num)
+
+            sql_upd_page = "UPDATE coriander_pages \
+                            SET found_date_time='" + str(page.page_date) + "' \
+                            WHERE id='" + str(page.page_id) + "';"
+            cur.execute(sql_upd_page)
+
             for pers, id in self._persons.items():
                 select_test = False
                 sql_test = "SELECT * \
@@ -137,8 +151,10 @@ class NameCrawler(object):
                               + str(page.page_id) + ", " + str(id) + ", " \
                               + str(page.site_id) + ");"
                     cur.execute(sql)
+
         cur.close()
         cnx.close()
+
 
 if __name__ == '__main__':
     crawler = NameCrawler('root', 'r00tpa551', 'ark')
