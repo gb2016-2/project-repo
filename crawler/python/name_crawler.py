@@ -3,7 +3,7 @@ import re
 import pymysql
 from bs4 import BeautifulSoup
 from collections import namedtuple
-import dateutil
+from dateutil import parser
 
 
 class NameCrawler(object):
@@ -63,14 +63,16 @@ class NameCrawler(object):
             soup = BeautifulSoup(resp.content, 'lxml')
 
             def get_date(str_date):
-                dt = dateutil(str_date)
-                return str(dt.year) + str("{:02}".format(dt.month)) \
-                                    + str("{:02}".format(dt.day))
+                dt = parser.parse(str_date)
+                result = str(dt.year) + str("{:02}".format(dt.month)) \
+                                      + str("{:02}".format(dt.day))
+                return result
 
             try:
-                page.page_date = get_date(resp.headers['Last-Modified'])
+                new_date = get_date(resp.headers['Last-Modified'])
             except Exception:
-                pass
+                new_date = page.page_date
+            self._page_dates[page.url] = new_date
 
             # --------- plagiat --------- #
             texts = soup.findAll(text=True)
@@ -94,11 +96,12 @@ class NameCrawler(object):
         self._get_persons()
 
         self._texts_by_page = {}
+        self._page_dates = {}
         page_num = len(self._pages)
         for page in self._pages:
             self._get_visibles_from_page(page)
             page_num -= 1
-            print('               \r', page_num)
+            print('               \r', page_num, end='')
 
         self._count = {}
         for pers in self._persons.keys():
@@ -119,10 +122,11 @@ class NameCrawler(object):
         page_num = len(self._pages)
         for page in self._pages:
             page_num -= 1
-            print('               \r', page_num)
+            print('               \r', page_num, end='')
 
             sql_upd_page = "UPDATE coriander_pages \
-                            SET found_date_time='" + str(page.page_date) + "' \
+                            SET found_date_time='" + \
+                                          str(self._page_dates[page.url]) + "' \
                             WHERE id='" + str(page.page_id) + "';"
             cur.execute(sql_upd_page)
 
