@@ -19,9 +19,9 @@
             <div class="main-logo_text">Ingenious</div>
           </div>
           <nav class="main-nav">
-            <a href="index.html">ГЛАВНАЯ</a>
-            <a href="#">О КОМПАНИИ</a>
-            <a href="#">ЗАГРУЗИТЬ</a>
+            <a href="index.html" style="color: #010534">ГЛАВНАЯ</a>
+            <a href="company.html">О КОМПАНИИ</a>
+            <a href="download.html">ЗАГРУЗИТЬ</a>
             <a href="contacts.html">КОНТАКТЫ</a>
           </nav>
         </div>
@@ -31,8 +31,8 @@
           <div class="front-desc-section_title">ПРОФЕССИОНАЛЬНЫЙ ИНСТРУМЕНТ ОПРЕДЕЛЕНИЯ ПОПУЛЯРНОСТИ</div>
           <div class="front-desc-section_text">ЯСНОСТЬ РЕШЕНИЙ ВМЕСТЕ С НАМИ</div>
           <div class="front-desc-section_log-in">
-            <a href="#" id="popup__toggle2">Регистрация</a>
-            <a href="#" id="popup__toggle">Вход</a>
+            <a href="#" class="popup__toggle2">Регистрация</a>
+            <a href="#" class="popup__toggle">Вход</a>
           </div>
           <div class="front-desc-section_scroll-icon"></div>
           <div class="popup__overlay">
@@ -150,7 +150,7 @@
               ИМЕННО ДЛЯ ВАС
               </div>
               <div class="swiper-slide_button">
-                <a href="#" class="swiper-slide_link">О Компании</a>
+                <a href="company.html" class="swiper-slide_link">О Компании</a>
               </div>
             </div>
             <div class="swiper-slide swiper-slide_second">
@@ -161,7 +161,7 @@
                СКАЧАЙТЕ ВЕРСИЮ ДЛЯ КОМПЬЮТЕРА ИЛИ ДЛЯ МОБИЛЬНОГО УСТРОЙСТВА
               </div>
               <div class="swiper-slide_button">
-                <a href="#" class="swiper-slide_link">О Компании</a>
+                <a href="company.html" class="swiper-slide_link">О Компании</a>
               </div>
             </div>
             <div class="swiper-slide swiper-slide_third">
@@ -207,7 +207,7 @@
                 </ul>
               </div>
               <div class="account-button">
-                <a href="#">Регистрация</a>
+                <a href="#" class="popup__toggle2">Регистрация</a>
               </div>
             </div>
             <div class="premium-account">
@@ -222,9 +222,49 @@
                 </ul>
               </div>
               <div class="account-button">
-                <a href="#">Регистрация</a>
+                <a href="#" class="popup__toggle2">Регистрация</a>
               </div>
             </div>
+          </div>
+          <div class="popup__overlay">
+            <form class="popup" action="index.php" method="post">
+                <a href="#" class="popup__close">X</a>
+                <h2>Welcome!</h2>
+                <p>Please enter your login and password to continue</p>
+                <div class="popup-form__row">
+                    <label for="popup-form_login">Login</label>
+                    <input type="text" id="popup-form_login" value="" />
+                </div>
+                <div class="popup-form__row">
+                    <label for="popup-form_password">Password</label>
+                    <input type="password" id="popup-form_password" value="" />
+                </div>
+                <input type="submit" value="Log in" />
+            </form>
+          </div>
+          <div class="popup__overlay2">
+            <form class="popup" action="index.php" method="post">
+                <a href="#" class="popup__close">X</a>
+                <h2>Welcome!</h2>
+                <p>Please enter your login and password to continue</p>
+                <div class="popup-form__row">
+                    <label for="popup-form_login">Login</label>
+                    <input type="text" id="popup-form_login" value="" />
+                </div>
+                <div class="popup-form__row">
+                    <label for="popup-form_password">Password</label>
+                    <input type="password" id="popup-form_password" value="" />
+                </div>
+                <div class="popup-form__row">
+                    <label for="popup-form_mail">E-mail</label>
+                    <input type="mail" id="popup-form_mail" value="" />
+                </div>
+                <div class="popup-form__row">
+                    <label for="popup-form_name">Full name</label>
+                    <input type="text" id="popup-form_name" value="" />
+                </div>
+                <input type="submit" value="Log in" />
+            </form>
           </div>
         </div>
       </section>
