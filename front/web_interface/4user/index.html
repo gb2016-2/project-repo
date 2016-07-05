@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <title>users private room</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/bootstrap-grid.min.css">
+    <link rel="stylesheet" href="css/core.css">
+  </head>
+  <body>
+
+
+    <div class="container">
+      <div class="content">
+        <h2>user space</h2>
+        <form class="person-sites" role="form">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>
+                  <input class="find-many-sites" type="checkbox" checked>
+                  Поиск личности по сайтам
+                </label>
+              </div>
+              <div class="form-group">
+                <label class="choose-person">
+                  Личность для поиска<br>
+                  <select>
+                    <option>Путин</option>
+                    <option>Медведев</option>
+                    <option>Навальный</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>
+                  Сайты для поиска<br>
+                  <input type="checkbox" value="lenta">Lenta.ru<br>
+                  <input type="checkbox" value="ria">Ria.ru<br>
+                  <input type="checkbox" value="something">Something else<br>
+                </label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>
+                  Выберите диапазон выборки данных<br>
+                  C <input type="date"> По <input type="date">
+                </label>
+              </div>
+              <div class="form-group">
+                <label>
+                  Временной разделитель<br>
+                  <select>
+                    <option>Год</option>
+                    <option>Квартал</option>
+                    <option>Месяц</option>
+                  </select>
+                </label><br>
+                <input type="submit" value="Применить">
+              </div>
+            </div>
+          </div>
+        </form>
+        <form class="site-persons" role="form" disabled>
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>
+                  <input class="find-many-persons" type="checkbox">
+                  Поиск личностей в рамках сайта
+                </label>
+              </div>
+              <div class="form-group">
+                <label class="choose-person">
+                  Сайт для сканирования<br>
+                  <select disabled>
+                    <option>Lenta.ru</option>
+                    <option>Ria.ru</option>
+                    <option>Something else</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>
+                  Личности для поиска<br>
+                  <input type="checkbox" value="lenta" disabled>Путин<br>
+                  <input type="checkbox" value="ria" disabled>Медведев<br>
+                  <input type="checkbox" value="something" disabled>Something else<br>
+                </label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>
+                  Выберите диапазон выборки данных<br>
+                  C <input type="date" disabled> По <input type="date" disabled>
+                </label>
+              </div>
+              <div class="form-group">
+                <label>
+                  Временной разделитель<br>
+                  <select disabled>
+                    <option>Год</option>
+                    <option>Квартал</option>
+                    <option>Месяц</option>
+                  </select>
+                </label><br>
+                <input type="submit" value="Применить" disabled>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="js/jquery-2.1.3.min.js"></script>
+    <script src="js/core.js"></script>
+
+  </body>
