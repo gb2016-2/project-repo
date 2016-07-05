@@ -48,7 +48,7 @@ def append_DB(id_parent, url_site):
                 print('fucking shit')
                 pass
         while threading.activeCount() > 1:
-            time.sleep(20)
+            time.sleep(200)
             print('In linker: ' + str(threading.activeCount()))
             
         x = Write_DB(List_Urls)

@@ -56,10 +56,10 @@ class Linklist():
             
             x = threading.Thread(target=extr, args=(ufile,List,))
             x.start()
-            
+            while activeCount() > 1:
+                time.sleep(100)
         else:
             pass
-        
         return List
         
 def main():
