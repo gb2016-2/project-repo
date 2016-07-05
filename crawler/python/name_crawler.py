@@ -90,10 +90,11 @@ class NameCrawler(object):
 
             visible_texts = filter(visible, texts)
             # ----- end of plagiat ------ #
+
             return visible_texts
 
         except Exception:
-            return 0
+            return []
 
     def count_persons(self):
         self._get_sites()
@@ -101,7 +102,14 @@ class NameCrawler(object):
 
         self._page_dates = {}
         page_num = len(self._pages)
+
+        cnx = pymysql.connect(**self._config, autocommit=True)
+        cur = cnx.cursor()
+
         for page in self._pages:
+
+            # sql_test_page
+
             print('\r\tPages left:', page_num, end='          ')
             visible_texts = self._get_visibles_from_page(page.url,
                                                          page.page_date)
@@ -113,8 +121,46 @@ class NameCrawler(object):
                     for word in self._names[person]:
                         match = re.findall(word, text, flags=re.IGNORECASE)
                         self._count[person][page.url] += len(match)
+
+            sql_upd_page = "UPDATE coriander_pages \
+                            SET found_date_time='" \
+                                        + str(self._page_dates[page.url]) + "' \
+                            WHERE id='" + str(page.page_id) + "';"
+            cur.execute(sql_upd_page)
+
+            for pers, id in self._persons.items():
+                select_test = False
+                sql_test = "SELECT * \
+                            FROM coriander_personpagerank \
+                            WHERE (person_id='" + str(id) + "') \
+                            AND (page_id='" + str(page.page_id) + "');"
+                cur.execute(sql_test)
+                for row in cur:
+                    select_test = True
+                if select_test:
+                    sql_update = "UPDATE coriander_personpagerank \
+                                  SET \
+                                  rank='" + str(self._count[pers][page.url]) + "' \
+                                  WHERE (person_id='" + str(id) + "') \
+                                  AND (page_id='" + str(page.page_id) + "');"
+                    cur.execute(sql_update)
+                else:
+                    sql = "INSERT \
+                           INTO coriander_personpagerank(rank, page_id, \
+                                                         person_id, site_id) \
+                           VALUES \
+                           (" + str(self._count[pers][page.url]) + ", " \
+                              + str(page.page_id) + ", " + str(id) + ", " \
+                              + str(page.site_id) + ");"
+                    cur.execute(sql)
+
             page_num -= 1
 
+        print('\n')
+        cur.close()
+        cnx.close()
+
+    """
     def write_to_db(self):
         cnx = pymysql.connect(**self._config, autocommit=True)
         cur = cnx.cursor()
@@ -158,6 +204,7 @@ class NameCrawler(object):
 
         cur.close()
         cnx.close()
+    """
 
 
 if __name__ == '__main__':
