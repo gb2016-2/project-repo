@@ -1,115 +1,88 @@
 import pymysql
-from collections import namedtuple
+
+cnx = pymysql.connect(user='root',
+                      password='123qwe_+',
+                      database='ark',
+                      charset='utf8')
+cur = cnx.cursor()
 
 
-class UserInterface(object):
-    def __init__(self, user, password, db):
-        self._sites = {}
-        self._persons = []
-        self._config = {'user': user,
-                        'password': password,
-                        'database': db,
-                        'charset': 'utf8'}
+persons = []
+sql_persons = "SELECT name FROM coriander_persons;"
+cur.execute(sql_persons)
+for row in cur:
+    persons.append(row[0])
 
-    def show_persons(self):
-        cnx = pymysql.connect(**self._config)
-        cur = cnx.cursor()
+dates_year = {}
+sql_pages = "SELECT id, found_date_time FROM coriander_pages;"
+cur.execute(sql_pages)
+for row in cur:
+    dates_year[row[0]] = str(row[1].year)
 
-        sql_person = "SELECT * FROM coriander_persons;"
-        cur.execute(sql_person)
-        for row in cur:
-            print(row)
 
-        cur.close()
-        cnx.close()
+from collections import Counter
+count_years = Counter(dates_year.values())
 
-    def show_sites(self):
-        cnx = pymysql.connect(**self._config)
-        cur = cnx.cursor()
 
-        sql_site = "SELECT * FROM coriander_sites;"
-        cur.execute(sql_site)
-        for row in cur:
-            print(row)
+ranks = {}
+union_ranks = {}
+sql_persons = "SELECT id FROM coriander_persons;"
+cur.execute(sql_persons)
+for row in cur:
+    ranks[row[0]] = {}
+    union_ranks[row[0]] = {}
 
-        cur.close()
-        cnx.close()
-
-    def add_person(self, person):
-        for pers in self._persons:
-            if pers.name == person:
-                print(person, 'is already here')
-                return 0
-
-        Person = namedtuple('Person', ['person_id', 'name', 'keywords'])
-
-        cnx = pymysql.connect(**self._config)
-        cur = cnx.cursor()
-        sql_person = "SELECT id FROM coriander_persons \
-                      WHERE name='" + person + "';"
-        cur.execute(sql_person)
-        sql_person_test = False
-        for row in cur:
-            person_id = row[0]
-            sql_person_test = True
-
-        if sql_person_test is False:
-            print(person, 'is not in base')
-            cur.close()
-            cnx.close()
-            return 0
+for person in ranks.keys():
+    sql_ranks = "SELECT page_id, rank FROM coriander_personpagerank WHERE person_id={};".format(person)
+    cur.execute(sql_ranks)
+    for row in cur:
+        ranks[person][row[0]] = row[1]
+        if row[0] == 0:
+            union_ranks[person][row[0]] = 0
         else:
-            sql_keywords = "SELECT name FROM coriander_keywords \
-                           WHERE person_id='" + str(person_id) + "';"
-            cur.execute(sql_keywords)
-            keywords = []
-            for row in cur:
-                keywords.append(row[0])
+            union_ranks[person][row[0]] = 1
 
-            self._persons.append(Person(person_id, person, keywords))
 
-            cur.close()
-            cnx.close()
+from collections import defaultdict
 
-    def add_site(self, site):
-        if site not in self._sites.keys():
-            cnx = pymysql.connect(**self._config)
-            cur = cnx.cursor()
-
-            sql_site = "SELECT id FROM coriander_sites \
-                        WHERE name='" + site + "';"
-            cur.execute(sql_site)
-            sql_site_test = False
-            for row in cur:
-                self._sites[site] = row[0]
-                sql_site_test = True
-
-            if sql_site_test is False:
-                print(site, 'is not in base')
-                return 0
-
-            cur.close()
-            cnx.close()
+year_ranks = {}
+year_union_ranks = {}
+for person in ranks.keys():
+    year_ranks[person] = defaultdict(int)
+    year_union_ranks[person] = defaultdict(int)
+    for k, v in ranks[person].items():
+        year_ranks[person][dates_year.get(k)] += v
+        if v == 0:
+            year_union_ranks[person][dates_year.get(k)] += 0
         else:
-            print(site, 'is already here')
+            year_union_ranks[person][dates_year.get(k)] += 1
 
-    def print_results(self):
-        cnx = pymysql.connect(**self._config)
-        cur = cnx.cursor()
 
-        for person in self._persons:
-            print(person.name)
-            for site, site_id in self._sites.items():
-                sql_select = "SELECT sum(rank) FROM coriander_personpagerank \
-                              WHERE person_id=" + str(person.person_id) + \
-                              " AND site_id=" + str(site_id) + \
-                              " GROUP BY site_id;"
-                cur.execute(sql_select)
-                for row in cur:
-                    print('\t', site, '-->', row[0])
+import pandas as pd
 
-        cur.close()
-        cnx.close()
+# 1. Абсолютные точные значения
+ranks_year_df = pd.DataFrame(year_ranks)
+ranks_year_df.columns = persons
+ranks_year_df = ranks_year_df.sort_index()
+
+# 2. Нормализованные точные значения
+norm_abs_rank_year_df = pd.DataFrame(columns=persons)
+for year, count in count_years.items():
+    year_df = pd.DataFrame(ranks_year_df.ix[year].copy() / count)
+    norm_abs_rank_year_df = pd.concat([norm_abs_rank_year_df, year_df.T])
+norm_abs_rank_year_df = norm_abs_rank_year_df.sort_index()
+
+# 3. Абсолютные единичные значения
+ranks_union_year_df = pd.DataFrame(year_union_ranks)
+ranks_union_year_df.columns = persons
+ranks_union_year_df = ranks_union_year_df.sort_index()
+
+# 4. Нормализованные единичные значения
+norm_abs_rank_union_year_df = pd.DataFrame(columns=persons)
+for year, count in count_years.items():
+    union_year_df = pd.DataFrame(ranks_union_year_df.ix[year].copy() / count)
+    norm_abs_rank_union_year_df = pd.concat([norm_abs_rank_union_year_df, union_year_df.T])
+norm_abs_rank_union_year_df = norm_abs_rank_union_year_df.sort_index()
 
 
 if __name__ == "__main__":
