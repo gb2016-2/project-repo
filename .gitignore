@@ -3,4 +3,5 @@ user-interface/python
 
 !crawler/python/name_crawler.py
 !crawler/python/site_crawler.py
+!crawler/python/site_crawler_v2.py
 !user-interface/python/user_face.py
