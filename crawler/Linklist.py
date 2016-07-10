@@ -36,30 +36,48 @@ class Linklist():
     def extract(self):
         
         List = []
+
+        def tread_add_list(url):
+            List.append(tuple( [self.ID, url , str(datetime.now().strftime("%Y-%m-%d"))]))
+
+            
         def extr(ufile,List):
             print('start thread')
             try:
                 print('try open gz')
                 url_string = gzip.open(ufile, 'rb').read().decode('UTF-8')
                 url_soup = Soup(url_string , "html.parser")
+                THR = [] 
+                
+
+                
                 for i in url_soup.findAll(name='url'):
                     url = ''.join(re.findall(r'<.*?>(http.*?)<.*?>', str(i)))
                     lastmod = ''.join(re.findall(r'<lastmod>(http.*?)</lastmod>', str(i)))
-                    List.append(tuple( [self.ID, url , str(datetime.now().strftime("%Y-%m-%d"))]))
-                print('append data tuple')  
+                    
+                    x = threading.Thread(target=tread_add_list, args=(url,))
+                    x.start()
+                    THR.append(x)
+                    
+
+                for t in THR:
+                    t.join()
+                print( str(len(url_soup.findAll(name='url'))) + 'added data tuple in' + str(len(List)))  
             except:
-                print(str(self.url_site) + ' not a gzipped file')
+                print(str(ufile) + ' not a gzipped file')
                 pass  
         
         if Linklist.url_chek(self):
             ufile = urllib.request.urlopen(self.url_site)
+            extr(ufile,List)
             
-            x = threading.Thread(target=extr, args=(ufile,List,))
-            x.start()
-            while activeCount() > 1:
-                time.sleep(100)
+            
+            
+                
         else:
             pass
+        
+        print(len(List))
         return List
         
 def main():
