@@ -5,19 +5,19 @@ import threading
 
 def connect():
     """ Connect to MySQL database """
-    try:
-        db = pymysql.connect(host='localhost',
-                             user='root',
-                             password='123456',
-                             db='db',
-                             charset='utf8mb4',
+    db = pymysql.connect(host='178.250.245.70',
+                             port=int('3306'),
+                             user='admin',
+                             password='arkpa55',
+                             db='new_ark',
                              cursorclass=pymysql.cursors.DictCursor)
-        
-    except:
-        print('Cant connect to DATABASE')
-        pass
-
+    
     return db
+    
+    
+
+    
+    
 
 class Write_DB():
     def __init__(self, DataList):
@@ -38,19 +38,21 @@ class Write_DB():
                                                     FoundDateTime)
                                                     VALUES ("{0}","{1}","{2}")""".format(ID, Url, FoundDateTime,))
                 count += 1
-                if count%10000 == 0:
-                    print(str(count) + ' \ ' + str(end))
+                if count%1000 == 0:
+                    print(count, str(len(self.DataList)))
             else:
                 cursor.execute('UPDATE Pages SET FoundDateTime = "{0}" WHERE Url = "{1}"'.format(FoundDateTime, Url))
                 count += 1
-                if count%10000 == 0:
-                    print(str(count) + ' \ ' + str(end))
+                if count%1000 == 0:
+                    print(count, str(len(self.DataList)))
          
-        for ID, Url, FoundDateTime in self.DataList:             
+        for ID, Url, FoundDateTime in self.DataList:
+            if count == 15000:
+                break
             extr(ID, Url, FoundDateTime)
-            
-        print("Data added to table")
         
+        print("Data added to table")
+        cursor().close()
         
         """
         for ID, Url, FoundDateTime in self.DataList:
