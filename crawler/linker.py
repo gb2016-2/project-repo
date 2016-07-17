@@ -71,7 +71,9 @@ def append_DB(id_parent, url_site):
                 
         print('All good')
 if __name__ == '__main__':
-   
-        append_DB('1' , 'http://lenta.ru/sitemap.xml')
+   while 1:
         print('Search started')
+        append_DB('1' , 'http://lenta.ru/sitemap.xml')
+        print('Wait new day for update')
+        sleep(86400)
         
