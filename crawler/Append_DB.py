@@ -9,23 +9,27 @@ def connect():
                              port=int('3306'),
                              user='admin',
                              password='arkpa55',
-                             db='new_ark',
-                             cursorclass=pymysql.cursors.DictCursor)
-    
-    return db
+                             db='new_ark')
     
     
+    
+    with db.cursor() as cursor:
+        cursor.execute('CREATE TABLE IF NOT EXISTS Pages (ID INTEGER , Url VARCHAR(2048), SiteID INTEGER PRIMARY KEY AUTO_INCREMENT, FoundDateTime DATE, LastScanDate DATE)')
+        data = cursor.fetchone()
+        print("Database version : {0} ".format(data))
+        print('TABLE Pages CREATED')
+
 
     
-    
+    return db
 
 class Write_DB():
     def __init__(self, DataList):
         self.DataList = DataList
         
     def write_db(self):
-        
-        cursor = connect().cursor()
+        conect = connect()
+        cursor = conect.cursor()
         end = len(self.DataList)
         count = 0
 
@@ -45,14 +49,16 @@ class Write_DB():
                 count += 1
                 if count%1000 == 0:
                     print(count, str(len(self.DataList)))
-         
+        count2 = 0
         for ID, Url, FoundDateTime in self.DataList:
-            if count == 15000:
-                break
+            count2 += 1
             extr(ID, Url, FoundDateTime)
+            if count == 150000:
+                break
+        print("Data added to table")    
+        conect.commit()
+        print('Commit')
         
-        print("Data added to table")
-        cursor().close()
         
         """
         for ID, Url, FoundDateTime in self.DataList:
