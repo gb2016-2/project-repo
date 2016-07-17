@@ -38,7 +38,8 @@ class Linklist():
         List = []
 
         def tread_add_list(url):
-            List.append(tuple( [self.ID, url , str(datetime.now().strftime("%Y-%m-%d"))]))
+            date = str(datetime.now().strftime("%Y-%m-%d"))
+            List.append(tuple( [self.ID, url , date]))
 
             
         def extr(ufile,List):
